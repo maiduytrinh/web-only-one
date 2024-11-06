@@ -53,7 +53,7 @@
                 <q-item-section>Cài đặt</q-item-section>
               </q-item>
               <q-separator />
-              <q-item class="text-negative" clickable to="/login">
+              <q-item class="text-negative" clickable @click="onLogout">
                 <q-item-section>Đăng xuất</q-item-section>
               </q-item>
             </q-list>
@@ -86,7 +86,9 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import ToolBarLeft from "src/components/ToolBarLeft.vue";
+import { useAuthStore } from "src/store/AuthStore";
 
 defineOptions({
   name: "MainLayout",
@@ -114,9 +116,16 @@ const menuList = [
 ];
 
 const leftDrawerOpen = ref(true);
+const router = useRouter();
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+function onLogout() {
+  const authStore = useAuthStore();
+  authStore.clearAuth();
+  router.push("/login");
 }
 </script>
 
