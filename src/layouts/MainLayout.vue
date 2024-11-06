@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="lHh Lpr lff">
+    <q-header elevated class="bg-white text-black">
       <q-toolbar>
         <q-btn
           flat
@@ -11,96 +11,117 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-separator vertical inset class="q-ml-sm" />
 
-        <div>Quasar v{{ $q.version }}</div>
+        <!-- wallet-menu -->
+        <q-btn
+          no-caps
+          flat
+          rounded
+          color="primary"
+          icon="account_balance_wallet"
+          label="Ví: 10,000"
+        >
+          <q-menu fit auto-close>
+            <q-list style="min-width: 100px">
+              <q-item clickable to="/recharge">
+                <q-item-section>Nạp tiền</q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section>Lịch sử nạp</q-item-section>
+              </q-item>
+              <q-separator />
+            </q-list>
+          </q-menu>
+        </q-btn>
+
+        <q-space />
+
+        <!-- project menu -->
+        <q-btn no-caps flat rounded>
+          Mai Duy Trinh
+          <q-avatar size="40px" class="q-ml-sm">
+            <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+          </q-avatar>
+
+          <q-menu fit auto-close>
+            <q-list style="min-width: 100px">
+              <q-item clickable>
+                <q-item-section>Thông tin tài khoản</q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section>Cài đặt</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item class="text-negative" clickable to="/login">
+                <q-item-section>Đăng xuất</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+    <ToolBarLeft :menuList="menuList" :leftDrawerOpen="leftDrawerOpen" />
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
-
-    <q-page-container>
+    <q-page-container class="bg-grey-4">
       <router-view />
+      <!-- place QPageScroller at end of page -->
+      <q-page-scroller
+        position="bottom-right"
+        :scroll-offset="150"
+        :offset="[18, 18]"
+      >
+        <q-btn fab icon="keyboard_arrow_up" color="primary" />
+      </q-page-scroller>
     </q-page-container>
+
+    <q-footer class="bg-brand">
+      <q-toolbar>
+        <q-toolbar-title>Footer</q-toolbar-title>
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref } from "vue";
+import ToolBarLeft from "src/components/ToolBarLeft.vue";
 
 defineOptions({
-  name: 'MainLayout'
-})
+  name: "MainLayout",
+});
 
-const linksList = [
+const menuList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    icon: "dashboard",
+    label: "Dashboard",
+    link: "/dashboard",
+    separator: true,
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    icon: "account_box",
+    label: "Mua tài khoản",
+    link: "/account",
+    separator: true,
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    icon: "addchart",
+    label: "Dịch vụ Buff",
+    link: "/buffservice",
+    separator: true,
   },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+];
 
-const leftDrawerOpen = ref(false)
+const leftDrawerOpen = ref(true);
 
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+function toggleLeftDrawer() {
+  leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 </script>
+
+<style lang="sass">
+.my-menu-link
+  color: white
+  background-color: rgba(128, 128, 128, 0.3)
+</style>
