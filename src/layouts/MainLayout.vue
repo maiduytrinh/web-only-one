@@ -19,8 +19,8 @@
           flat
           rounded
           color="primary"
-          icon="account_balance_wallet"
-          label="Ví: 10,000"
+          icon="local_atm"
+          :label="`${formatNumber(balance)} Đ`"
         >
           <q-menu fit auto-close>
             <q-list style="min-width: 100px">
@@ -39,7 +39,7 @@
 
         <!-- project menu -->
         <q-btn no-caps flat rounded>
-          Mai Duy Trinh
+          {{ username }}
           <q-avatar size="40px" class="q-ml-sm">
             <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
           </q-avatar>
@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import ToolBarLeft from "src/components/ToolBarLeft.vue";
 import { useAuthStore } from "src/store/AuthStore";
@@ -103,8 +103,19 @@ const menuList = [
   },
   {
     icon: "account_box",
-    label: "Mua tài khoản",
-    link: "/account",
+    label: "Dịch vụ tài khoản",
+    children: [
+      {
+        icon: "people",
+        label: "Mua tài khoản",
+        link: "/account",
+      },
+      {
+        icon: "restore",
+        label: "Lịch sử mua",
+        link: "/account/history",
+      },
+    ],
     separator: true,
   },
   {
@@ -115,18 +126,26 @@ const menuList = [
   },
 ];
 
+const authStore = useAuthStore();
 const leftDrawerOpen = ref(true);
 const router = useRouter();
+const username = computed(() =>
+  authStore.username ? authStore.username : "User Name"
+);
+const balance = computed(() => (authStore.balance ? authStore.balance : 0));
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 
 function onLogout() {
-  const authStore = useAuthStore();
   authStore.clearAuth();
   router.push("/login");
 }
+
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
 </script>
 
 <style lang="sass">

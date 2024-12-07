@@ -2,10 +2,12 @@ import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
+    id: 0,
     username: null,
     permissions: [],
     roles: [],
     token: null,
+    balance: 0,
   }),
 
   getters: {
@@ -52,12 +54,16 @@ export const useAuthStore = defineStore("auth", {
     hydrate() {
       // Load auth state from localStorage
       const authData = localStorage.getItem("authData");
+      const balance = localStorage.getItem("balance");
       if (authData) {
         const data = JSON.parse(authData);
+        this.id = data.id;
         this.username = data.username;
         this.permissions = data.permissions;
         this.roles = data.roles;
         this.token = data.token;
+
+        this.balance = balance;
 
         // Check token expiration
         if (this.isTokenExpired) {
@@ -68,21 +74,25 @@ export const useAuthStore = defineStore("auth", {
 
     // Lưu thông tin đăng nhập
     setAuth(authData) {
+      this.id = authData.id;
       this.username = authData.username;
       this.permissions = authData.permissions || [];
       this.roles = authData.roles || [];
       this.token = authData.token;
+      this.balance = authData.balance;
 
       // Save complete auth data to localStorage
       localStorage.setItem(
         "authData",
         JSON.stringify({
+          id: this.id,
           username: this.username,
           permissions: this.permissions,
           roles: this.roles,
           token: this.token,
         })
       );
+      localStorage.setItem("balance", this.balance);
     },
 
     handleTokenExpiration() {
@@ -91,12 +101,20 @@ export const useAuthStore = defineStore("auth", {
 
     // Xóa thông tin đăng nhập
     clearAuth() {
+      this.id = 0;
       this.username = null;
       this.permissions = [];
       this.roles = [];
       this.token = null;
+      this.balance = 0;
 
       localStorage.removeItem("authData");
+      localStorage.removeItem("balance");
+    },
+
+    setBalance(balance) {
+      this.balance = balance;
+      localStorage.setItem("balance", balance);
     },
   },
 });

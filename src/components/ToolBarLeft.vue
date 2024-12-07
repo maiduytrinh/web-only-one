@@ -16,7 +16,36 @@
       </q-img>
 
       <template v-for="(menuItem, index) in menuList" :key="index">
+        <!-- Menu item with submenu -->
+        <q-expansion-item
+          v-if="menuItem.children"
+          :icon="menuItem.icon"
+          :label="menuItem.label"
+          expand-separator
+        >
+          <q-list>
+            <q-item
+              class="q-pl-lg"
+              v-for="child in menuItem.children"
+              :key="child.link"
+              :to="child.link"
+              clickable
+              v-ripple
+              active-class="my-menu-link"
+            >
+              <q-item-section avatar>
+                <q-icon :name="child.icon" />
+              </q-item-section>
+              <q-item-section>
+                {{ child.label }}
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+
+        <!-- Regular menu item -->
         <q-item
+          v-else
           clickable
           v-ripple
           :to="menuItem.link"
@@ -29,6 +58,7 @@
             {{ menuItem.label }}
           </q-item-section>
         </q-item>
+
         <q-separator :key="'sep' + index" v-if="menuItem.separator" />
       </template>
     </q-list>

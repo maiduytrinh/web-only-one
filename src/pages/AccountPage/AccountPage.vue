@@ -5,12 +5,12 @@
         v-for="product in products"
         :key="product.id"
         :id="product.id"
-        :title="product.title"
-        :description="product.description"
+        :name="product.name"
+        :description="product.subDescription"
         :price="product.price"
-        :url="product.url"
-        :count="product.count"
-        @buy="handleBuy"
+        :image="product.image"
+        :stock="product.stock"
+        @buy="handleClickBtnBuy"
       />
 
       <q-dialog v-model="showDialog">
@@ -82,6 +82,7 @@
                 size="18px"
                 color="primary"
                 label="Thanh toán"
+                @click="handlePayment"
               ></q-btn>
             </div>
           </q-card-section>
@@ -92,103 +93,76 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import ProductCard from "./ProductCard.vue";
-const products = [
-  {
-    id: 1,
-    title: "Nick buff shopee 14 day",
-    price: 10000,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 2,
-    title: "Product 2",
-    price: 2000,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 0,
-  },
-  {
-    id: 3,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 1000,
-  },
-  {
-    id: 4,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 5,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 6,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 7,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 8,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 9,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-  {
-    id: 10,
-    title: "Product 3",
-    price: 300,
-    url: "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
-    description: "Sản phẩm chất lượng\n Sống lâu\n Bảo hành 1 đổi 1 ",
-    count: 200,
-  },
-];
+import ApiProduct from "src/services/ApiProduct";
+import ApiOrderProduct from "src/services/ApiOrderProduct";
+import { Product } from "src/models/Product";
+import { showNotification } from "src/utils/AppUtils";
+import { useAuthStore } from "src/store/AuthStore";
+
+const products = ref([]);
 const productClicked = ref(null);
 const showDialog = ref(false);
 const count = ref(1);
+const nextPage = ref(0);
+
+onMounted(async () => {
+  try {
+    const response = await ApiProduct.getProducts(1, "shopee", 1, 10);
+    if (response.statusCode === 200) {
+      products.value = response.data.map((product) => new Product(product));
+      nextPage.value = response.nextPage;
+    } else {
+      showNotification(
+        "Failed to load products: " + response.data.message,
+        false
+      );
+    }
+  } catch (error) {
+    showNotification("Failed to load products: " + error.message, false);
+  }
+});
+
 const countAumont = computed(
   () => count.value * (productClicked.value?.price || 0)
 );
 
-const handleBuy = (id) => {
-  productClicked.value = products.find((product) => product.id === id);
+const handleClickBtnBuy = (id) => {
+  productClicked.value = products.value.find((product) => product.id === id);
   count.value = 1;
   showDialog.value = true;
 };
+
 const formatNumber = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const authStore = new useAuthStore();
+
+const handlePayment = async () => {
+  const response = await ApiOrderProduct.creatOrderAndPayment(
+    productClicked.value.id,
+    authStore.id,
+    countAumont.value,
+    count.value
+  );
+  if (response.statusCode === 200) {
+    // Update user balance in store
+    authStore.setBalance(response.data.user.balance);
+
+    // Update product stock in products list
+    const updatedProduct = products.value.find(
+      (p) => p.id === response.data.product.id
+    );
+    if (updatedProduct) {
+      updatedProduct.stock = response.data.product.stock;
+    }
+
+    showNotification("Thanh toán thành công", true);
+    showDialog.value = false;
+  } else {
+    showNotification("Thất bại: " + response.message, false);
+  }
 };
 </script>

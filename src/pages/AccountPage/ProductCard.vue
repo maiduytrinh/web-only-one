@@ -1,8 +1,8 @@
 <template>
   <q-card class="my-card" bordered>
-    <q-img :src="props.url"> </q-img>
+    <q-img :src="props.image"> </q-img>
     <q-card-section>
-      <div class="text-h5 q-mt-sm q-mb-xs">{{ props.title }}</div>
+      <div class="text-h5 q-mt-sm q-mb-xs">{{ props.name }}</div>
       <div class="text-caption text-grey q-pl-sm" style="white-space: pre-line">
         {{ props.description }}
       </div>
@@ -42,7 +42,7 @@
       rounded
       floating
     >
-      Còn {{ props.count }} sp
+      Còn {{ props.stock }} sp
     </q-badge>
   </q-card>
 </template>
@@ -54,13 +54,13 @@ const props = defineProps({
     type: String,
     default: "Sản phẩm chất lượng.\n Sống lâu.\n Bảo hành 1 đổi 1.",
   },
-  url: {
+  image: {
     type: String,
     required: true,
     default:
       "https://p-vn.ipricegroup.com/trends-article/tong-hop-cac-ma-giam-gia-khung-nhan-dip-sale-to-sinh-nhat-shopee-1212-medium.jpg",
   },
-  title: {
+  name: {
     type: String,
     default: "Tài khoản SEO Shopee",
   },
@@ -71,13 +71,13 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  count: {
+  stock: {
     type: Number,
     default: 100,
   },
 });
 
-const isStatus = computed(() => props.count > 0);
+const isStatus = computed(() => props.stock > 0);
 const emit = defineEmits(["buy"]);
 
 const handleBuyClick = () => {
