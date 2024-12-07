@@ -13,9 +13,16 @@
         :rows-per-page-options="[10, 20, 50]"
         separator="cell"
       >
-        <!-- top slot -->
         <template v-slot:top="props">
-          <!-- <q-select color="positive" :disable="loading" /> -->
+          <q-select
+            dense
+            v-model="selectedStatus"
+            :options="statusOptions"
+            label="Chọn trạng thái"
+            @input="handleSelect"
+            style="width: 200px"
+          />
+          <q-space />
           <q-input
             borderless
             dense
@@ -28,7 +35,6 @@
               <q-icon name="search" />
             </template>
           </q-input>
-          <q-space />
           <q-btn
             flat
             round
@@ -37,20 +43,6 @@
             @click="props.toggleFullscreen"
             class="q-ml-md"
           />
-        </template>
-
-        <!-- Add row click template -->
-        <template v-slot:body-cell-id="props">
-          <q-td
-            :props="props"
-            class="cursor-pointer"
-            @click="goToDetail(props.value)"
-          >
-            <div class="text-primary">
-              {{ props.value }}
-            </div>
-            <q-tooltip>Xem chi tiết đơn hàng</q-tooltip>
-          </q-td>
         </template>
 
         <!-- Process rows status -->
@@ -80,7 +72,15 @@ const authStore = useAuthStore();
 const filter = ref("");
 const loading = ref(false);
 const rows = ref([]);
+const selectedStatus = ref({ label: "Tất cả", value: "" });
 
+const statusOptions = [
+  { label: "Tất cả", value: "" },
+  { label: "Đang xử lý", value: "pending" },
+  { label: "Hoàn thành", value: "completed" },
+  { label: "Lỗi xử lý", value: "error" },
+  { label: "Hủy", value: "cancelled" },
+];
 // Fetch data from API
 const onRequest = async () => {
   try {

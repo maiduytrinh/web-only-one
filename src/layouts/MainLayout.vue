@@ -122,6 +122,18 @@ const menuList = [
     icon: "addchart",
     label: "Dịch vụ Buff",
     link: "/buffservice",
+    children: [
+      {
+        icon: "add_circle_outline",
+        label: "Tạo đơn buff",
+        link: "/buffservice",
+      },
+      {
+        icon: "restore",
+        label: "Lịch sử đặt đơn",
+        link: "/buffservice/history",
+      },
+    ],
     separator: true,
   },
 ];

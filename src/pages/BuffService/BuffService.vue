@@ -1,233 +1,125 @@
 <template>
   <q-page>
     <div class="q-pa-md">
-      <q-table
-        flat
-        bordered
-        title="Treats"
-        :rows="rows"
-        :columns="columns"
-        row-key="id"
-        :filter="filter"
-        :loading="loading"
+      <q-form
+        class="q-pa-md bg-white custom-border"
+        @submit="onSubmit"
+        @reset="onReset"
       >
-        <template v-slot:top="props">
-          <q-btn
-            no-caps
-            color="positive"
-            :disable="loading"
-            label="Thêm đơn hàng"
-            @click="showAddDialog = true"
-            icon="add"
-          />
-          <q-space />
-          <q-input
-            borderless
-            dense
-            debounce="300"
-            color="primary"
-            placeholder="Tìm kiếm"
-            v-model="filter"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-          <q-btn
-            flat
-            round
-            dense
-            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-            @click="props.toggleFullscreen"
-            class="q-ml-md"
-          />
-        </template>
+        <div class="row">
+          <div class="col-12">
+            <q-btn
+              no-caps
+              size="13px"
+              color="green-8"
+              label="Tạo đơn hàng loạt (File EXCEL)"
+              class="float-right"
+            />
+          </div>
 
-        <template v-slot:body-cell-status="props">
-          <q-td :props="props">
-            <div>
-              <q-badge color="purple" :label="props.value" />
+          <!-- Thông tin tài khoản -->
+          <div class="col-8">
+            <div class="text-h6 text-primary">Thông tin tài khoản:</div>
+            <div class="row q-col-gutter-md">
+              <div class="col-3">
+                <q-input
+                  filled
+                  dense
+                  v-model="username"
+                  label="Tên đăng nhập"
+                  lazy-rules
+                  :rules="[
+                    (val) => (val && val.length > 0) || 'Please type something',
+                  ]"
+                />
+              </div>
+              <div class="col-3">
+                <q-input
+                  filled
+                  dense
+                  v-model="password"
+                  label="Mật khẩu"
+                  lazy-rules
+                  :rules="[
+                    (val) => (val && val.length > 0) || 'Please type something',
+                  ]"
+                />
+              </div>
+              <div class="col-6">
+                <q-input
+                  filled
+                  dense
+                  v-model="scpf"
+                  label="Mã SCP_F"
+                  lazy-rules
+                  :rules="[
+                    (val) => (val && val.length > 0) || 'Please type something',
+                  ]"
+                />
+              </div>
             </div>
-          </q-td>
-        </template>
-      </q-table>
-    </div>
+          </div>
 
-    <!-- Add dialog -->
-    <q-dialog v-model="showAddDialog" persistent>
-      <q-card style="min-width: 1000px">
-        <q-bar class="bg-brand text-white" style="height: 40px">
-          <div>Thêm đơn hàng</div>
-
-          <q-space />
-
-          <q-btn dense flat icon="close" v-close-popup>
-            <q-tooltip>Close</q-tooltip>
-          </q-btn>
-        </q-bar>
-
-        <q-card-section class="q-px-xl q-py-lg">
-          <q-form @submit="onSubmit" @reset="onReset">
-            <div class="row">
-              <div class="col-12">
-                <q-btn
-                  no-caps
-                  size="13px"
-                  color="green-8"
-                  label="Tạo đơn hàng loạt (File EXCEL)"
-                  class="float-right"
-                />
-              </div>
-
-              <!-- Thông tin tài khoản -->
-              <div class="col-8">
-                <div class="text-h6 text-primary">Thông tin tài khoản:</div>
-                <div class="row q-col-gutter-md">
-                  <div class="col-3">
-                    <q-input
-                      filled
-                      dense
-                      v-model="username"
-                      label="Tên đăng nhập"
-                      lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-                  </div>
-                  <div class="col-3">
-                    <q-input
-                      filled
-                      dense
-                      v-model="password"
-                      label="Mật khẩu"
-                      lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-                  </div>
-                  <div class="col-6">
-                    <q-input
-                      filled
-                      dense
-                      v-model="scpf"
-                      label="Mã SCP_F"
-                      lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-                  </div>
+          <!-- Thông tin sản phẩm đặt -->
+          <div class="col-8">
+            <div class="text-h6 text-primary">Thông tin sản phẩm cần đặt:</div>
+            <div class="row items-center q-pb-sm">
+              <div class="col-5">Số sản phẩm khác nhau cần đặt:</div>
+              <div class="col">
+                <div class="row justify-between">
+                  <q-radio v-model="shape" val="0" label="Đặt 1 sản phẩm" />
+                  <q-radio v-model="shape" val="1" label="Đặt nhiều sản phẩm" />
                 </div>
               </div>
-
-              <!-- Thông tin sản phẩm đặt -->
-              <div class="col-8">
-                <div class="text-h6 text-primary">
-                  Thông tin sản phẩm cần đặt:
-                </div>
-                <div class="row items-center q-pb-sm">
-                  <div class="col-5">Số sản phẩm khác nhau cần đặt:</div>
-                  <div class="col">
-                    <div class="row justify-between">
-                      <q-radio v-model="shape" val="0" label="Đặt 1 sản phẩm" />
-                      <q-radio
-                        v-model="shape"
-                        val="1"
-                        label="Đặt nhiều sản phẩm"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <q-select
-                  class="q-mb-md"
-                  filled
-                  v-model="orderMethod"
-                  :options="optionOrderMethods"
-                  label="Chọn hình thức đặt hàng"
-                  dense
-                  options-dense
-                  clearable
-                />
+            </div>
+            <q-select
+              class="q-mb-md"
+              filled
+              v-model="orderMethod"
+              :options="optionOrderMethods"
+              label="Chọn hình thức đặt hàng"
+              dense
+              options-dense
+              clearable
+            />
+            <q-input
+              filled
+              dense
+              v-model="username"
+              label="Tên đăng nhập"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              dense
+              v-model="username"
+              label="Tên đăng nhập"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <div class="row q-col-gutter-md">
+              <div class="col">
                 <q-input
                   filled
                   dense
                   v-model="username"
-                  label="Tên đăng nhập"
+                  label="Phân loại cần đặt"
                   lazy-rules
                   :rules="[
                     (val) => (val && val.length > 0) || 'Please type something',
                   ]"
                 />
-                <q-input
-                  filled
-                  dense
-                  v-model="username"
-                  label="Tên đăng nhập"
-                  lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
-                />
-                <div class="row q-col-gutter-md">
-                  <div class="col">
-                    <q-input
-                      filled
-                      dense
-                      v-model="username"
-                      label="Phân loại cần đặt"
-                      lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-                  </div>
-                  <div class="col">
-                    <q-input
-                      filled
-                      dense
-                      type="number"
-                      v-model="username"
-                      label="Số lượng mỗi phân loại"
-                      lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-                  </div>
-                </div>
               </div>
-              <div class="col-4 q-pl-xl">
-                <div class="text-h6 text-primary">Thông tin nhận hàng:</div>
+              <div class="col">
                 <q-input
                   filled
                   dense
-                  v-model="username"
-                  label="Họ tên"
-                  lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
-                />
-                <q-input
-                  filled
-                  dense
-                  v-model="username"
-                  label="Số điện thoại"
-                  lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
-                />
-                <q-input
-                  filled
-                  dense
+                  type="number"
                   v-model="username"
                   label="Số lượng mỗi phân loại"
                   lazy-rules
@@ -236,23 +128,56 @@
                   ]"
                 />
               </div>
-              <div class="q-pt-md col-12 float-right">
-                <div class="row justify-end">
-                  <q-btn
-                    label="Reset"
-                    type="reset"
-                    color="primary"
-                    flat
-                    class="q-ml-sm"
-                  />
-                  <q-btn label="Đặt đơn" type="submit" color="primary" />
-                </div>
-              </div>
             </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+          </div>
+          <div class="col-4 q-pl-xl">
+            <div class="text-h6 text-primary">Thông tin nhận hàng:</div>
+            <q-input
+              filled
+              dense
+              v-model="username"
+              label="Họ tên"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              dense
+              v-model="username"
+              label="Số điện thoại"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              dense
+              v-model="username"
+              label="Số lượng mỗi phân loại"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+          </div>
+          <div class="q-pt-md col-12 float-right">
+            <div class="row justify-end">
+              <q-btn
+                label="Reset"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+              />
+              <q-btn label="Đặt đơn" type="submit" color="primary" />
+            </div>
+          </div>
+        </div>
+      </q-form>
+    </div>
   </q-page>
 </template>
 <script setup>

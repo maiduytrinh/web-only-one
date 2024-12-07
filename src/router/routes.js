@@ -15,8 +15,20 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: "/account/history",
+        component: () =>
+          import("pages/AccountPage/HistoryOrderAccountPage.vue"),
+        name: "HistoryOrderAccount",
+        meta: { requiresAuth: true },
+      },
+      {
         path: "/buffservice",
         component: () => import("pages/BuffService/BuffService.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/buffservice/history",
+        component: () => import("pages/BuffService/HistoryBuffPage.vue"),
         meta: { requiresAuth: true },
       },
       {
@@ -31,9 +43,9 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
-        path: "/paymentaccount",
-        component: () => import("pages/Payment/PaymentAccount.vue"),
-        name: "Paymentaccount",
+        path: "/account/history/:id",
+        name: "DetailAccount",
+        component: () => import("pages/AccountPage/DetailAccountPage.vue"),
         meta: { requiresAuth: true },
       },
     ],
