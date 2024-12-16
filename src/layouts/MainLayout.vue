@@ -130,7 +130,7 @@ const menuList = [
       },
       {
         icon: "restore",
-        label: "Lịch sử đặt đơn",
+        label: "Lịch sử buff đơn",
         link: "/buffservice/history",
       },
     ],

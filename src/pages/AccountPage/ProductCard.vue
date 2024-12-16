@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card" bordered>
+  <q-card class="my-card" style="max-width: 350px" bordered>
     <q-img :src="props.image"> </q-img>
     <q-card-section>
       <div class="text-h5 q-mt-sm q-mb-xs">{{ props.name }}</div>

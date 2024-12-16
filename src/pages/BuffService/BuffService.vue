@@ -19,7 +19,7 @@
 
           <!-- Thông tin tài khoản -->
           <div class="col-8">
-            <div class="text-h6 text-primary">Thông tin tài khoản:</div>
+            <div class="text-h6 text-primary">1. Thông tin tài khoản:</div>
             <div class="row q-col-gutter-md">
               <div class="col-3">
                 <q-input
@@ -28,9 +28,7 @@
                   v-model="username"
                   label="Tên đăng nhập"
                   lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
+                  :rules="validateInput('tên đăng nhập')"
                 />
               </div>
               <div class="col-3">
@@ -40,9 +38,7 @@
                   v-model="password"
                   label="Mật khẩu"
                   lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
+                  :rules="validateInput('mật khẩu')"
                 />
               </div>
               <div class="col-6">
@@ -52,9 +48,7 @@
                   v-model="scpf"
                   label="Mã SCP_F"
                   lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
+                  :rules="validateInput('mã SCP_F')"
                 />
               </div>
             </div>
@@ -62,107 +56,223 @@
 
           <!-- Thông tin sản phẩm đặt -->
           <div class="col-8">
-            <div class="text-h6 text-primary">Thông tin sản phẩm cần đặt:</div>
-            <div class="row items-center q-pb-sm">
-              <div class="col-5">Số sản phẩm khác nhau cần đặt:</div>
-              <div class="col">
-                <div class="row justify-between">
-                  <q-radio v-model="shape" val="0" label="Đặt 1 sản phẩm" />
-                  <q-radio v-model="shape" val="1" label="Đặt nhiều sản phẩm" />
-                </div>
-              </div>
+            <div class="text-h6 text-primary">
+              2. Thông tin sản phẩm cần đặt:
             </div>
             <q-select
-              class="q-mb-md"
+              class="col-12 q-mb-md"
               filled
               v-model="orderMethod"
               :options="optionOrderMethods"
               label="Chọn hình thức đặt hàng"
               dense
               options-dense
-              clearable
+              @update:model-value="onOrderMethodChange"
             />
-            <q-input
-              filled
-              dense
-              v-model="username"
-              label="Tên đăng nhập"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-            <q-input
-              filled
-              dense
-              v-model="username"
-              label="Tên đăng nhập"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-            <div class="row q-col-gutter-md">
-              <div class="col">
-                <q-input
-                  filled
-                  dense
-                  v-model="username"
-                  label="Phân loại cần đặt"
-                  lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
-                />
-              </div>
-              <div class="col">
-                <q-input
-                  filled
-                  dense
-                  type="number"
-                  v-model="username"
-                  label="Số lượng mỗi phân loại"
-                  lazy-rules
-                  :rules="[
-                    (val) => (val && val.length > 0) || 'Please type something',
-                  ]"
-                />
-              </div>
+            <div class="row q-col-gutter-x-md">
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="keywordSearch"
+                label="Từ khóa tìm kiếm"
+                v-show="showInputKeyword"
+                lazy-rules
+                :rules="validateInput('từ khóa tìm kiếm', showInputKeyword)"
+              />
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="productName"
+                label="Tên sản phẩm"
+                v-show="showInputProductName"
+                lazy-rules
+                :rules="validateInput('tên sản phẩm', showInputProductName)"
+              />
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="productLink"
+                label="Link sản phẩm"
+                v-show="showInputProductLink"
+                lazy-rules
+                :rules="validateInput('link sản phẩm', showInputProductLink)"
+              />
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="shopName"
+                label="Tên Shop"
+                v-show="showInputShopName"
+                lazy-rules
+                :rules="validateInput('tên shop', showInputShopName)"
+              />
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="shopLink"
+                label="Link Shop"
+                v-show="showInputShopLink"
+                lazy-rules
+                :rules="validateInput('link shop', showInputShopLink)"
+              />
+            </div>
+            <div>
+              <q-input
+                filled
+                dense
+                v-model="productOptions"
+                label="Phân loại cần đặt"
+                lazy-rules
+                :rules="validateInput('phân loại cần đặt')"
+              />
+            </div>
+            <div>
+              <q-input
+                filled
+                dense
+                type="number"
+                v-model="productQuantity"
+                label="Số lượng mỗi phân loại"
+                lazy-rules
+                :rules="validateInput('số lượng mỗi phân loại')"
+              />
             </div>
           </div>
+
           <div class="col-4 q-pl-xl">
-            <div class="text-h6 text-primary">Thông tin nhận hàng:</div>
-            <q-input
+            <div class="text-h6 text-primary">3. Thông tin thanh toán:</div>
+            <q-select
+              class="q-mb-md"
               filled
+              v-model="shipMethod"
+              :options="optionShipMethods"
+              label="Phương thức vận chuyển"
               dense
-              v-model="username"
-              label="Họ tên"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
+              options-dense
+            />
+            <q-select
+              class="q-mb-md"
+              filled
+              v-model="payMethod"
+              :options="optionPayMethods"
+              label="Phương thức thanh toán"
+              dense
+              options-dense
             />
             <q-input
+              class="q-mb-md"
               filled
               dense
-              v-model="username"
-              label="Số điện thoại"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
+              v-model="shopVoucher"
+              label="Voucher của shop"
             />
             <q-input
+              class="q-mb-md"
               filled
               dense
-              v-model="username"
-              label="Số lượng mỗi phân loại"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
+              v-model="platformVoucher"
+              label="Voucher của Shopee"
             />
           </div>
+
+          <div class="col-8">
+            <div class="text-h6 text-primary">4. Thông tin nhận hàng:</div>
+            <div class="row q-col-gutter-x-md">
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="receiverName"
+                label="Họ tên người nhận"
+                lazy-rules
+                :rules="validateInput('họ tên người nhận')"
+              />
+              <q-input
+                class="col-6"
+                filled
+                dense
+                v-model="receiverPhone"
+                label="Số điện thoại"
+                lazy-rules
+                :rules="validateInput('số điện thoại')"
+              />
+              <q-select
+                class="q-mb-md col-12"
+                filled
+                v-model="receiveMethod"
+                :options="optionReceiveMethods"
+                label="Cách thức nhận đơn"
+                dense
+                options-dense
+              />
+              <div class="col-12 text-h7">* Địa chỉ nhận hàng:</div>
+              <div class="row col-8 q-col-gutter-x-xs">
+                <q-select
+                  class="col-4"
+                  filled
+                  v-model="province"
+                  :options="optionProvinces"
+                  label="Tỉnh/Thành phố"
+                  dense
+                  options-dense
+                  use-input
+                  hide-selected
+                  fill-input
+                  @update:model-value="updateDistricts"
+                  @filter="filterOptionProvince"
+                  lazy-rules
+                  :rules="[(val) => !!val || 'Vui lòng chọn Tỉnh/Thành phố']"
+                />
+                <q-select
+                  class="col-4"
+                  filled
+                  v-model="district"
+                  :options="optionDistricts"
+                  label="Quận/Huyện"
+                  dense
+                  options-dense
+                  use-input
+                  hide-selected
+                  fill-input
+                  @update:model-value="updateCommunes"
+                  @filter="filterOptionDistrict"
+                  lazy-rules
+                  :rules="[(val) => !!val || 'Vui lòng chọn Quận/Huyện']"
+                />
+                <q-select
+                  class="col-4"
+                  filled
+                  v-model="commune"
+                  :options="optionCommunes"
+                  label="Phường/Xã"
+                  dense
+                  options-dense
+                  use-input
+                  hide-selected
+                  fill-input
+                  @filter="filterOptionCommune"
+                  lazy-rules
+                  :rules="[(val) => !!val || 'Vui lòng chọn Phường/Xã']"
+                />
+              </div>
+              <q-input
+                class="col-4"
+                filled
+                dense
+                v-model="receiverDetailAddress"
+                label="Địa chỉ chi tiết (Số nhà, đường, phố)"
+                lazy-rules
+                :rules="validateInput('địa chỉ chi tiết')"
+              />
+            </div>
+          </div>
+
+          <!-- action button -->
           <div class="q-pt-md col-12 float-right">
             <div class="row justify-end">
               <q-btn
@@ -181,159 +291,290 @@
   </q-page>
 </template>
 <script setup>
-import { ref } from "vue";
-const columns = [
-  {
-    name: "name",
-    required: true,
-    label: "Dessert (100g serving)",
-    align: "left",
-    field: (row) => row.name,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "calories",
-    align: "center",
-    label: "Calories",
-    field: "calories",
-    sortable: true,
-  },
-  { name: "fat", label: "Fat (g)", field: "fat", sortable: true },
-  { name: "carbs", label: "Carbs (g)", field: "carbs" },
-  { name: "protein", label: "Protein (g)", field: "protein" },
-  { name: "sodium", label: "Sodium (mg)", field: "sodium" },
-  {
-    name: "calcium",
-    label: "Calcium (%)",
-    field: "calcium",
-    sortable: true,
-    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
-  },
-  {
-    name: "status",
-    label: "Status",
-    field: "iron",
-    sortable: true,
-  },
-];
-const originalRows = [
-  {
-    name: "Frozen Yogurt",
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    sodium: 87,
-    calcium: "14%",
-    iron: "1%",
-  },
-  {
-    name: "Ice cream sandwich",
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    sodium: 129,
-    calcium: "8%",
-    iron: "1%",
-  },
-  {
-    name: "Eclair",
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    sodium: 337,
-    calcium: "6%",
-    iron: "7%",
-  },
-  {
-    name: "Cupcake",
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    sodium: 413,
-    calcium: "3%",
-    iron: "8%",
-  },
-  {
-    name: "Gingerbread",
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    sodium: 327,
-    calcium: "7%",
-    iron: "16%",
-  },
-  {
-    name: "Jelly bean",
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    sodium: 50,
-    calcium: "0%",
-    iron: "0%",
-  },
-  {
-    name: "Lollipop",
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    sodium: 38,
-    calcium: "0%",
-    iron: "2%",
-  },
-  {
-    name: "Honeycomb",
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    sodium: 562,
-    calcium: "0%",
-    iron: "45%",
-  },
-  {
-    name: "Donut",
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    sodium: 326,
-    calcium: "2%",
-    iron: "22%",
-  },
-  {
-    name: "KitKat",
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    sodium: 54,
-    calcium: "12%",
-    iron: "6%",
-  },
-];
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import ApiOrderBuff from "src/services/ApiOrderBuff";
+import { useAuthStore } from "src/store/AuthStore";
+import { OrderBuff } from "src/models/OrderBuff";
+import { showNotification } from "src/utils/AppUtils";
+
+const authStore = useAuthStore();
+// option q-select
 const optionOrderMethods = [
   { label: "Tìm kiếm click ADS", value: "ads" },
   { label: "Đặt qua shop", value: "shop" },
   { label: "Đặt qua link sản phẩm", value: "link" },
 ];
-const secondModel = ref("one");
-const loading = ref(false);
-const filter = ref("");
-const rows = ref([...originalRows]);
-const showAddDialog = ref(false);
-const tab = ref("mails");
-const orderMethod = ref(null);
-// form input
-const name = ref(null);
-const age = ref(null);
+const optionShipMethods = [
+  { label: "Tiết kiệm", value: "1" },
+  { label: "Nhanh", value: "2" },
+  { label: "Hỏa tốc", value: "3" },
+];
+const optionPayMethods = [
+  { label: "Thẻ Tín dụng/Ghi nợ", value: "1" },
+  { label: "Ví ShopeePay", value: "2" },
+  { label: "Thanh toán khi nhận hàng", value: "3" },
+];
+const optionReceiveMethods = [
+  { label: "Tự nhận đơn", value: "1" },
+  { label: "Thuê gạch đơn", value: "2" },
+];
+let provinceValue = [];
+let districtValue = [];
+let communeValue = [];
+const optionProvinces = ref(provinceValue);
+const optionDistricts = ref(districtValue);
+const optionCommunes = ref(communeValue);
+
+// Visibility flags for inputs
+const showInputKeyword = ref(true);
+const showInputProductName = ref(false);
+const showInputProductLink = ref(true);
+const showInputShopName = ref(false);
+const showInputShopLink = ref(false);
+
+// input values
+const username = ref("");
+const password = ref("");
+const scpf = ref("");
+const keywordSearch = ref("");
+const productName = ref("");
+const productLink = ref("");
+const shopName = ref("");
+const shopLink = ref("");
+const productOptions = ref("");
+const productQuantity = ref();
+const orderMethod = ref({ label: "Tìm kiếm click ADS", value: "ads" });
+
+const shipMethod = ref({ label: "Tiết kiệm", value: "1" });
+const payMethod = ref({ label: "Thanh toán khi nhận hàng", value: "2" });
+const shopVoucher = ref();
+
+const platformVoucher = ref();
+const receiveMethod = ref({ label: "Tự nhận đơn", value: "1" });
+const receiverName = ref("");
+const receiverPhone = ref("");
+const province = ref(null);
+const district = ref(null);
+const commune = ref();
+const receiverDetailAddress = ref("");
+const addressData = ref([]);
+const price = ref(0);
+
+const onOrderMethodChange = (value) => {
+  // Reset all visibility flags
+  showInputKeyword.value = false;
+  showInputProductName.value = false;
+  showInputProductLink.value = false;
+  showInputShopName.value = false;
+  showInputShopLink.value = false;
+  keywordSearch.value = "";
+  productName.value = "";
+  productLink.value = "";
+  shopName.value = "";
+  shopLink.value = "";
+  switch (value.value) {
+    case "ads":
+      showInputKeyword.value = true;
+      showInputProductLink.value = true;
+      break;
+    case "shop":
+      showInputShopLink.value = true;
+      showInputShopName.value = true;
+      showInputProductName.value = true;
+      showInputProductLink.value = true;
+      break;
+    case "link":
+      showInputProductLink.value = true;
+      break;
+  }
+};
+
+const fetchAddressData = async () => {
+  try {
+    const response = await axios.get(
+      "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json"
+    );
+
+    // Store full data
+    addressData.value = response.data;
+
+    // Transform provinces for q-select
+    provinceValue = response.data.map((p) => ({
+      label: p.Name,
+      value: p.Id,
+    }));
+  } catch (error) {
+    console.error("Error fetching address data:", error);
+  }
+};
+
+const updateDistricts = () => {
+  if (!province.value) {
+    districtValue = [];
+    return;
+  }
+
+  // Reset dependent selections
+  district.value = null;
+  commune.value = null;
+
+  // Find selected province and map districts
+  const selectedProvince = provinceValue.find(
+    (p) => p.value === province.value.value
+  );
+  const provinceData = addressData.value.find(
+    (p) => p.Id === selectedProvince.value
+  );
+
+  districtValue = provinceData.Districts.map((d) => ({
+    label: d.Name,
+    value: d.Id,
+  }));
+  optionDistricts.value = districtValue;
+};
+
+const updateCommunes = () => {
+  if (!district.value) {
+    communeValue = [];
+    return;
+  }
+
+  // Reset commune selection
+  commune.value = null;
+
+  // Find selected province and district
+  const selectedProvince = optionProvinces.value.find(
+    (p) => p.value === province.value.value
+  );
+  const selectedDistrict = optionDistricts.value.find(
+    (d) => d.value === district.value.value
+  );
+
+  const provinceData = addressData.value.find(
+    (p) => p.Id === selectedProvince.value
+  );
+  const districtData = provinceData.Districts.find(
+    (d) => d.Id === selectedDistrict.value
+  );
+
+  communeValue = districtData.Wards.map((w) => ({
+    label: w.Name,
+    value: w.Id,
+  }));
+  optionCommunes.value = communeValue;
+};
+
+const filterOptionProvince = (val, update) => {
+  update(() => {
+    const needle = val.toLowerCase();
+    optionProvinces.value = provinceValue.filter(
+      (v) => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+const filterOptionDistrict = (val, update) => {
+  update(() => {
+    const needle = val.toLowerCase();
+    optionDistricts.value = districtValue.filter(
+      (v) => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+const filterOptionCommune = (val, update) => {
+  update(() => {
+    const needle = val.toLowerCase();
+    optionCommunes.value = communeValue.filter(
+      (v) => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+onMounted(fetchAddressData);
+
+const fetchApiCreateOrderBuff = async () => {
+  const requestData = new OrderBuff({
+    username: username.value,
+    password: password.value,
+    spcF: scpf.value,
+    typeOrder: orderMethod.value.value,
+    keywordSearch: keywordSearch.value,
+    productLink: productLink.value,
+    shopName: shopName.value,
+    shopLink: shopLink.value,
+    productOption: productOptions.value,
+    productQuantity: productQuantity.value,
+    shopVoucher: shopVoucher.value,
+    platformVoucher: platformVoucher.value,
+    shipMethod: shipMethod.value.value,
+    recipientName: receiverName.value,
+    recipientPhone: receiverPhone.value,
+    methodReceive: receiveMethod.value.value,
+    addressReceive: `${replaceProvinceName(province.value.label)}, ${
+      district.value.label
+    }, ${commune.value.label}`,
+    detailAddress: receiverDetailAddress.value,
+  }).toApi();
+
+  console.log("Request data: ", requestData);
+
+  try {
+    const response = await ApiOrderBuff.creatOrderBuffAndPayment(
+      authStore.id,
+      price.value,
+      requestData
+    );
+    console.log("Response: ", response);
+    if (response.statusCode === 200) {
+      showNotification("Tạo đơn buf thành công.", true);
+    } else {
+      showNotification(response.message, false);
+    }
+  } catch (error) {
+    showNotification("Lỗi tạo đơn Buff: " + error, false);
+  }
+};
+
+function replaceProvinceName(provinceName) {
+  return provinceName.replace("Tỉnh ", "").replace("Thành phố ", "").trim();
+}
+
+function validateInput(inputName, isShow = true) {
+  return isShow
+    ? [(val) => (val && val.length > 0) || `Vui lòng nhập ${inputName}`]
+    : [];
+}
+
+const onSubmit = () => {
+  fetchApiCreateOrderBuff();
+};
+
+const onReset = () => {
+  username.value = "";
+  password.value = "";
+  scpf.value = "";
+  keywordSearch.value = "";
+  productName.value = "";
+  productLink.value = "";
+  shopName.value = "";
+  shopLink.value = "";
+  productOptions.value = "";
+  productQuantity.value = null;
+  orderMethod.value = { label: "Tìm kiếm click ADS", value: "ads" };
+  shipMethod.value = { label: "Tiết kiệm", value: "1" };
+  payMethod.value = { label: "Thanh toán khi nhận hàng", value: "2" };
+  shopVoucher.value = "";
+  platformVoucher.value = "";
+  receiveMethod.value = { label: "Tự nhận đơn", value: "1" };
+  receiverName.value = "";
+  receiverPhone.value = "";
+  province.value = null;
+  district.value = null;
+  commune.value = null;
+  receiverDetailAddress.value = "";
+};
 </script>
 
 <style lang="sass" scoped>

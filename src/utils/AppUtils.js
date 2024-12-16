@@ -1,6 +1,6 @@
 import { Notify } from "quasar";
 
-export const showNotification = (message, isSuccess = false) => {
+export const showNotification = (message, isSuccess = true) => {
   Notify.create({
     message,
     color: isSuccess ? "positive" : "negative",

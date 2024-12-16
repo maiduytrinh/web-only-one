@@ -40,23 +40,38 @@
           </div>
           <div class="text-subtitle2 q-pb-sm">
             Tài khoản người nhận:<br />
-            <span class="text-subtitle1 text-weight-bold">7234321</span>
+            <span class="text-subtitle1 text-weight-bold">{{
+              recipientAccount
+            }}</span>
           </div>
           <div class="text-subtitle2 q-pb-sm">
             Ngân hàng:<br />
-            <span class="text-subtitle1 text-weight-bold">ACB BANK</span>
+            <span class="text-subtitle1 text-weight-bold">{{
+              recipientBank
+            }}</span>
           </div>
           <div class="text-subtitle2 q-pb-sm">
             Tên người nhận:<br />
-            <span class="text-subtitle1 text-weight-bold">MAI DUY TRINH</span>
+            <span class="text-subtitle1 text-weight-bold">{{
+              recipientName
+            }}</span>
           </div>
+          <div class="text-subtitle2 q-pt-md text-negative">
+            *Sau khi chuyển khoản, vui lòng nhấn vào đây*<br />
+          </div>
+          <q-btn
+            class="q-mt-sm"
+            no-caps
+            label="Đã chuyển khoản"
+            color="primary"
+            style="max-height: 40px"
+            @click="onClickTransfer"
+          />
         </div>
       </div>
       <div class="text-caption text-grey-8 q-mt-md">
-        Đơn hàng sẽ tự động được xử lý sau 1-3 phút, sau đó khi hệ thống xác
-        nhận, hệ thống sẽ tự động chuyển hướng tới
-        <strong>License của tôi</strong>. Một email cũng sẽ được gửi tới bạn với
-        thông tin chi tiết về đơn hàng.
+        * Đơn hàng sẽ tự động được xử lý sau 1-3 phút, sau đó khi hệ thống xác
+        nhận sẽ cộng tiền vào ví cho quý khách.
       </div>
     </div>
   </q-page>
@@ -65,11 +80,25 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
+import { useAuthStore } from "src/store/AuthStore";
+import ApiDeposit from "src/services/ApiDeposit";
+import { showNotification } from "src/utils/AppUtils";
 
 const route = useRoute();
+const authStore = useAuthStore();
 
+// recipient info
+const recipientAccount = ref("7234321");
+const recipientBank = ref("ACB BANK");
+const recipientName = ref("MAI DUY TRINH");
+
+// payment info
 const amount = computed(() => {
   return route.query.amount;
+});
+
+const type = computed(() => {
+  return route.query.type;
 });
 
 const formatNumber = (number) => {
@@ -93,4 +122,27 @@ const description = computed(() => {
 
   return `${prefix}${randomNumber}`;
 });
+
+const onClickTransfer = async () => {
+  // Your code to redirect to payment gateway or call payment API
+  let body = {
+    amount: amount.value,
+    transactionCode: description.value,
+    type: type.value,
+    userId: authStore.id,
+    recipientAccount: recipientAccount.value,
+    recipientBank: recipientBank.value,
+    recipientName: recipientName.value,
+  };
+  try {
+    const response = await ApiDeposit.creatDeposit(body);
+    if (response.statusCode === 200) {
+      showNotification("Nạp tiền thành công.", true);
+    } else {
+      showNotification(response.message, false);
+    }
+  } catch (error) {
+    showNotification("Lỗi tạo nạp tiền", false);
+  }
+};
 </script>

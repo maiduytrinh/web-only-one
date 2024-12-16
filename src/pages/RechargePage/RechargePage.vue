@@ -18,8 +18,7 @@
               <q-item-section>
                 <q-item-label>Thanh toán VIET-QR</q-item-label>
                 <q-item-label caption
-                  >Quét mã QR PAY trên ứng dụng Mobile Banking, phí giao dịch
-                  2%</q-item-label
+                  >Quét mã QR PAY trên ứng dụng Mobile Banking</q-item-label
                 >
               </q-item-section>
             </template>
@@ -46,8 +45,9 @@
                       no-caps
                       label="Nạp tiền"
                       color="primary"
-                      :to="isAmountValid ? getPaymentLink(amount) : null"
-                      :disabled="!isAmountValid"
+                      :to="
+                        isAmountValid ? getPaymentLink(amount, 'vietqr') : null
+                      "
                       style="max-height: 40px"
                     />
                   </div>
@@ -69,8 +69,7 @@
                   >Nạp số dư trực tiếp bằng Momo Payment</q-item-label
                 >
                 <q-item-label caption
-                  >Nạp Dcoin tự động liên kết với Ví Momo, hoàn thành tức thì.
-                  Phí 5%</q-item-label
+                  >Nạp Dcoin tự động liên kết với Ví Momo</q-item-label
                 >
               </q-item-section>
             </template>
@@ -119,33 +118,16 @@ const amountRule = (val) => {
 };
 
 const isAmountValid = computed(() => {
-  return Number(amount.value) >= 10000; // Kiểm tra số tiền lớn hơn 10.000
+  return amount.value >= 10000; // Kiểm tra số tiền lớn hơn 10.000
 });
 
-const paymentMethods = [
-  {
-    name: "Chuyển Khoản Ngân Hàng 24/7",
-    description: "Chuyển khoản ngân hàng online hoặc tại quầy giao dịch",
-    icon: "src/assets/bank_icon.png",
-  },
-  {
-    name: "Thanh toán VNPAY-QR",
-    description:
-      "Quét mã QR PAY trên ứng dụng Mobile Banking, phí giao dịch 2%",
-    icon: "src/assets/viet_qr_icon.png",
-  },
-  {
-    name: "Nạp số dư trực tiếp bằng Momo Payment",
-    description:
-      "Nạp Dcoin tự động liên kết với Ví Momo, hoàn thành tức thì. Phí 5%",
-    icon: "src/assets/momo_icon.png",
-  },
-];
-
-const getPaymentLink = (amount) => {
+const getPaymentLink = (amount, type) => {
   return {
     name: "Payment",
-    query: { amount: amount },
+    query: {
+      amount: amount,
+      type: type,
+    },
   };
 };
 </script>

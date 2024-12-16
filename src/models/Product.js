@@ -12,7 +12,7 @@ export class Product {
     this.created = data.created || null;
   }
   // Phương thức để chuyển đổi dữ liệu từ API
-  static fromApi(apiData) {
+  fromApi(apiData) {
     return new User({
       id: apiData.id,
       categoryId: apiData.categoryId,
